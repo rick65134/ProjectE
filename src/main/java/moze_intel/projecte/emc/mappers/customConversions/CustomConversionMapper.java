@@ -5,7 +5,8 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import moze_intel.projecte.PECore;
-import moze_intel.projecte.emc.NormalizedSimpleStack;
+import moze_intel.projecte.emc.json.NSSOreDictionary;
+import moze_intel.projecte.emc.json.NormalizedSimpleStack;
 import moze_intel.projecte.emc.collector.IMappingCollector;
 import moze_intel.projecte.emc.mappers.IEMCMapper;
 import moze_intel.projecte.emc.mappers.customConversions.json.ConversionGroup;
@@ -125,9 +126,9 @@ public class CustomConversionMapper implements IEMCMapper<NormalizedSimpleStack,
 					{
 						NormalizedSimpleStack something = getNSSfromJsonString(entry.getKey(), fakes);
 						mapper.setValueBefore(something, entry.getValue());
-						if (something instanceof NormalizedSimpleStack.NSSOreDictionary)
+						if (something instanceof NSSOreDictionary)
 						{
-							String odName = ((NormalizedSimpleStack.NSSOreDictionary) something).od;
+							String odName = ((NSSOreDictionary) something).od;
 							for (ItemStack itemStack : OreDictionary.getOres(odName))
 							{
 								mapper.setValueBefore(NormalizedSimpleStack.getFor(itemStack), entry.getValue());
@@ -141,9 +142,9 @@ public class CustomConversionMapper implements IEMCMapper<NormalizedSimpleStack,
 					{
 						NormalizedSimpleStack something = getNSSfromJsonString(entry.getKey(), fakes);
 						mapper.setValueAfter(something, entry.getValue());
-						if (something instanceof NormalizedSimpleStack.NSSOreDictionary)
+						if (something instanceof NSSOreDictionary)
 						{
-							String odName = ((NormalizedSimpleStack.NSSOreDictionary) something).od;
+							String odName = ((NSSOreDictionary) something).od;
 							for (ItemStack itemStack : OreDictionary.getOres(odName))
 							{
 								mapper.setValueAfter(NormalizedSimpleStack.getFor(itemStack), entry.getValue());
@@ -156,9 +157,9 @@ public class CustomConversionMapper implements IEMCMapper<NormalizedSimpleStack,
 					for (CustomConversion conversion : file.values.conversion)
 					{
 						NormalizedSimpleStack out = getNSSfromJsonString(conversion.output, fakes);
-						if (conversion.evalOD && out instanceof NormalizedSimpleStack.NSSOreDictionary)
+						if (conversion.evalOD && out instanceof NSSOreDictionary)
 						{
-							String odName = ((NormalizedSimpleStack.NSSOreDictionary) out).od;
+							String odName = ((NSSOreDictionary) out).od;
 							for (ItemStack itemStack : OreDictionary.getOres(odName))
 							{
 								mapper.setValueFromConversion(conversion.count, NormalizedSimpleStack.getFor(itemStack), convertToNSSMap(conversion.ingredients, fakes));

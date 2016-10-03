@@ -2,7 +2,8 @@ package moze_intel.projecte.emc.mappers;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import moze_intel.projecte.emc.NormalizedSimpleStack;
+import moze_intel.projecte.emc.json.NSSItem;
+import moze_intel.projecte.emc.json.NormalizedSimpleStack;
 import moze_intel.projecte.emc.collector.IMappingCollector;
 import moze_intel.projecte.impl.ConversionProxyImpl;
 import moze_intel.projecte.utils.PELogger;
@@ -159,9 +160,9 @@ public class APICustomEMCMapper implements IEMCMapper<NormalizedSimpleStack, Int
 
 	private boolean isAllowedToSet(String modId, NormalizedSimpleStack stack, Integer value, Configuration config) {
 		String itemName;
-		if (stack instanceof NormalizedSimpleStack.NSSItem)
+		if (stack instanceof NSSItem)
 		{
-			NormalizedSimpleStack.NSSItem item = (NormalizedSimpleStack.NSSItem)stack;
+			NSSItem item = (NSSItem)stack;
 			itemName = item.itemName;
 		} else {
 			itemName = "IntermediateFakeItemsUsedInRecipes:";

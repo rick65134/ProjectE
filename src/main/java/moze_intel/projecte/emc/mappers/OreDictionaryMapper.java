@@ -1,7 +1,7 @@
 package moze_intel.projecte.emc.mappers;
 
 import com.google.common.collect.Sets;
-import moze_intel.projecte.emc.NormalizedSimpleStack;
+import moze_intel.projecte.emc.json.NormalizedSimpleStack;
 import moze_intel.projecte.emc.collector.IMappingCollector;
 import moze_intel.projecte.utils.ItemHelper;
 import net.minecraft.item.ItemStack;

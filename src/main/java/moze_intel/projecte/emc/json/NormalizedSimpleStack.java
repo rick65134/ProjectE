@@ -1,4 +1,4 @@
-package moze_intel.projecte.emc;
+package moze_intel.projecte.emc.json;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -137,6 +137,7 @@ public abstract class NormalizedSimpleStack {
 	}
 
 	public abstract boolean equals(Object o);
+
 	public abstract String json();
 
 
@@ -154,142 +155,8 @@ public abstract class NormalizedSimpleStack {
 		return nss;
 	}
 
-	public static class NSSItem extends NormalizedSimpleStack {
-		public final String itemName;
-		public final int damage;
-		private NSSItem(String itemName, int damage) {
-			this.itemName = itemName;
-			if (Item.REGISTRY.getObject(new ResourceLocation(itemName)) == null) {
-				throw new IllegalArgumentException("Invalid Item with itemName = " + itemName);
-			}
-			this.damage = damage;
-		}
-
-		@Override
-		public int hashCode() {
-			return itemName.hashCode() ^ damage;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof NSSItem) {
-				NSSItem other = (NSSItem) obj;
-
-				return this.itemName.equals(other.itemName) && this.damage == other.damage;
-			}
-
-			return false;
-		}
-
-		@Override
-		public String json()
-		{
-			return String.format("%s|%s", itemName,  damage == OreDictionary.WILDCARD_VALUE ? "*" : damage);
-		}
-
-		@Override
-		public String toString() {
-			Item obj = Item.REGISTRY.getObject(new ResourceLocation(itemName));
-
-			if (obj != null) {
-				return String.format("%s(%s:%s)", itemName, Item.REGISTRY.getIDForObject(obj), damage == OreDictionary.WILDCARD_VALUE ? "*" : damage);
-			}
-
-			return String.format("%s(???:%s)", itemName, damage == OreDictionary.WILDCARD_VALUE ? "*" : damage);
-		}
-	}
-
 	public static NormalizedSimpleStack createFake(String description) {
 		return new NSSFake(description);
-	}
-
-	private static class NSSFake extends NormalizedSimpleStack {
-		public final String description;
-		public final int counter;
-		private static int fakeItemCounter = 0;
-		public NSSFake(String description)
-		{
-			this.counter = fakeItemCounter++;
-			this.description = description;
-		}
-
-		@Override
-		public boolean equals(Object o)
-		{
-			return o == this;
-		}
-
-		@Override
-		public String json()
-		{
-			return "FAKE|" + this.counter + " " + this.description;
-		}
-
-		@Override
-		public String toString() {
-			return "NSSFAKE" + counter + ": " + description;
-		}
-	}
-
-	private static class NSSFluid extends NormalizedSimpleStack {
-
-		public final String name;
-		private NSSFluid(net.minecraftforge.fluids.Fluid f) {
-			this.name = f.getName();
-		}
-
-		@Override
-		public boolean equals(Object o)
-		{
-			return o instanceof NSSFluid && name.equals(((NSSFluid) o).name);
-		}
-
-		@Override
-		public String json()
-		{
-			return "FLUID|"+this.name;
-		}
-
-		@Override
-		public int hashCode() {
-			return this.name.hashCode();
-		}
-
-		@Override
-		public String toString() {
-			return "Fluid: " + this.name;
-		}
-	}
-
-	public static class NSSOreDictionary extends NormalizedSimpleStack {
-
-		public final String od;
-		private NSSOreDictionary(String od) {
-			this.od = od;
-		}
-
-		@Override
-		public int hashCode()
-		{
-			return od.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object o)
-		{
-			return o instanceof NSSOreDictionary && this.od.equals(((NSSOreDictionary) o).od);
-		}
-
-		@Override
-		public String json()
-		{
-			return "OD|" + this.od;
-		}
-
-		@Override
-		public String toString() {
-			return "OD: " + od;
-		}
 	}
 
 	public static NormalizedSimpleStack fromSerializedItem(String serializedItem) {
