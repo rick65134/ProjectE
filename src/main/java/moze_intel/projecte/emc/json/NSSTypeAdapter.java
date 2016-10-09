@@ -13,11 +13,7 @@ import java.io.IOException;
 public class NSSTypeAdapter extends TypeAdapter<NormalizedSimpleStack> {
     @Override
     public void write(JsonWriter out, NormalizedSimpleStack value) throws IOException {
-        if (value == null) {
-            out.nullValue();
-        } else {
-            out.value(value.json());
-        }
+        out.value(value.json());
     }
 
     @Override

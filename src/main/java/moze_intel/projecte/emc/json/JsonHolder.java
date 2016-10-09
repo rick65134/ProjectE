@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 
 public final class JsonHolder {
     public static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(NormalizedSimpleStack.class, new NSSTypeAdapter())
+            .registerTypeAdapter(NormalizedSimpleStack.class, new NSSTypeAdapter().nullSafe())
             .registerTypeAdapter(CustomEMCEntry.class, new CustomEMCEntry.Serializer())
             .setPrettyPrinting()
             .enableComplexMapKeySerialization()

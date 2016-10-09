@@ -3,8 +3,11 @@ package moze_intel.projecte.emc.pregenerated;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import moze_intel.projecte.emc.json.JsonHolder;
 import moze_intel.projecte.emc.json.NormalizedSimpleStack;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -14,8 +17,6 @@ import java.util.Map;
 
 public class PregeneratedEMC
 {
-	private static final Gson gson =  new GsonBuilder().registerTypeAdapter(NormalizedSimpleStack.class, new NSSJsonTypeAdapter().nullSafe()).enableComplexMapKeySerialization().setPrettyPrinting().create();
-
 	public static boolean tryRead(File f, Map<NormalizedSimpleStack, Integer> map)
 	{
 		try {
@@ -31,18 +32,20 @@ public class PregeneratedEMC
 	private static Map<NormalizedSimpleStack, Integer> read(File file) throws IOException
 	{
 		Type type = new TypeToken<Map<NormalizedSimpleStack, Integer>>() {}.getType();
-		FileReader reader = new FileReader(file);
-		Map<NormalizedSimpleStack, Integer> map = gson.fromJson(reader, type);
-		reader.close();
-		map.remove(null);
-		return map;
+		try (BufferedReader r = new BufferedReader(new FileReader(file)))
+		{
+			Map<NormalizedSimpleStack, Integer> map = JsonHolder.GSON.fromJson(r, type);
+			map.remove(null);
+			return map;
+		}
 	}
 
 	public static void write(File file, Map<NormalizedSimpleStack, Integer> map) throws IOException
 	{
 		Type type = new TypeToken<Map<NormalizedSimpleStack, Integer>>() {}.getType();
-		FileWriter writer = new FileWriter(file);
-		gson.toJson(map, type, writer);
-		writer.close();
+		try (BufferedWriter w = new BufferedWriter(new FileWriter(file)))
+		{
+			JsonHolder.GSON.toJson(map, type, w);
+		}
 	}
 }
