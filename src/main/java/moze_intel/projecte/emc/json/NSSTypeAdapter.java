@@ -10,7 +10,7 @@ import net.minecraftforge.oredict.OreDictionary;
 
 import java.io.IOException;
 
-public class NSSTypeAdapter extends TypeAdapter<NormalizedSimpleStack> {
+class NSSTypeAdapter extends TypeAdapter<NormalizedSimpleStack> {
     @Override
     public void write(JsonWriter out, NormalizedSimpleStack value) throws IOException {
         out.value(value.json());

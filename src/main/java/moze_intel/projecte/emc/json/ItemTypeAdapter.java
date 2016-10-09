@@ -9,7 +9,7 @@ import net.minecraft.util.ResourceLocation;
 
 import java.io.IOException;
 
-public class ItemTypeAdapter extends TypeAdapter<Item> {
+class ItemTypeAdapter extends TypeAdapter<Item> {
     @Override
     public void write(JsonWriter out, Item value) throws IOException {
         out.value(value.getRegistryName().toString());
