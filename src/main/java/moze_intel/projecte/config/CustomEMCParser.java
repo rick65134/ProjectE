@@ -13,6 +13,9 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import moze_intel.projecte.PECore;
+import moze_intel.projecte.emc.json.CustomEMCEntry;
+import moze_intel.projecte.emc.json.CustomEMCFile;
+import moze_intel.projecte.emc.json.JsonHolder;
 import moze_intel.projecte.emc.json.NormalizedSimpleStack;
 import moze_intel.projecte.emc.mappers.customConversions.CustomConversionMapper;
 import moze_intel.projecte.utils.PELogger;
@@ -31,73 +34,7 @@ import java.util.List;
 
 public final class CustomEMCParser
 {
-	private static final Gson GSON = new GsonBuilder().registerTypeAdapter(CustomEMCEntry.class, new Serializer()).setPrettyPrinting().create();
 	private static final File CONFIG = new File(PECore.CONFIG_DIR, "custom_emc.json");
-
-	public static class CustomEMCFile
-	{
-		public final List<CustomEMCEntry> entries;
-
-		public CustomEMCFile(List<CustomEMCEntry> entries)
-		{
-			this.entries = entries;
-		}
-	}
-
-	public static class CustomEMCEntry
-	{
-		public final NormalizedSimpleStack nss;
-		public final int emc;
-
-		private CustomEMCEntry(NormalizedSimpleStack nss, int emc)
-		{
-			this.nss = nss;
-			this.emc = emc;
-		}
-
-		@Override
-		public boolean equals(Object o)
-		{
-			return o == this ||
-					o instanceof CustomEMCEntry
-							&& nss.equals(((CustomEMCEntry) o).nss)
-							&& emc == ((CustomEMCEntry) o).emc;
-		}
-
-		@Override
-		public int hashCode()
-		{
-			return nss.hashCode() ^ 31 * emc;
-		}
-	}
-
-	private static class Serializer implements JsonSerializer<CustomEMCEntry>, JsonDeserializer<CustomEMCEntry>
-	{
-		@Override
-		public CustomEMCEntry deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-			JsonObject obj = JsonUtils.getJsonObject(json, "custom emc entry");
-			if (!JsonUtils.hasField(obj, "item") || !JsonUtils.hasField(obj, "emc"))
-			{
-				throw new JsonParseException("Missing fields from Custom EMC entry");
-			}
-			String nss = JsonUtils.getString(obj.get("item"), "item");
-			int emc = JsonUtils.getInt(obj.get("emc"), "emc");
-			if (emc < 0)
-			{
-				throw new JsonParseException("Invalid EMC amount: " + emc);
-			}
-			// todo stop reaching into other code. Pull out, refactor, and unify all json stuff.
-			return new CustomEMCEntry(CustomConversionMapper.getNSSfromJsonString(nss, new HashMap<String, NormalizedSimpleStack>()), emc);
-		}
-
-		@Override
-		public JsonElement serialize(CustomEMCEntry src, Type typeOfSrc, JsonSerializationContext context) {
-			JsonObject obj = new JsonObject();
-			obj.add("item", new JsonPrimitive(src.nss.json()));
-			obj.add("emc", new JsonPrimitive(src.emc));
-			return obj;
-		}
-	}
 
 	public static CustomEMCFile currentEntries;
 	private static boolean dirty = false;
@@ -122,10 +59,10 @@ public final class CustomEMCParser
 		}
 
 		try {
-			currentEntries = GSON.fromJson(new BufferedReader(new FileReader(CONFIG)), CustomEMCFile.class);
+			currentEntries = JsonHolder.GSON.fromJson(new BufferedReader(new FileReader(CONFIG)), CustomEMCFile.class);
 		} catch (FileNotFoundException e) {
 			PELogger.logFatal("Couldn't read custom emc file");
-			currentEntries = new CustomEMCFile(new ArrayList<CustomEMCEntry>());
+			currentEntries = new CustomEMCFile(new ArrayList<>());
 		}
 	}
 
@@ -183,7 +120,7 @@ public final class CustomEMCParser
 		{
 			try
 			{
-				Files.write(GSON.toJson(currentEntries), CONFIG, Charsets.UTF_8);
+				Files.write(JsonHolder.GSON.toJson(currentEntries), CONFIG, Charsets.UTF_8);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -194,11 +131,11 @@ public final class CustomEMCParser
 
 	private static void writeDefaultFile()
 	{
-		JsonObject elem = (JsonObject) GSON.toJsonTree(new CustomEMCFile(new ArrayList<CustomEMCEntry>()));
+		JsonObject elem = (JsonObject) JsonHolder.GSON.toJsonTree(new CustomEMCFile(new ArrayList<>()));
 		elem.add("__comment", new JsonPrimitive("Use the in-game commands to edit this file"));
 		try
 		{
-			Files.write(GSON.toJson(elem), CONFIG, Charsets.UTF_8);
+			Files.write(JsonHolder.GSON.toJson(elem), CONFIG, Charsets.UTF_8);
 		}
 		catch (IOException e)
 		{
