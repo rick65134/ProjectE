@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import moze_intel.projecte.PECore;
+import moze_intel.projecte.emc.json.JsonHolder;
 import moze_intel.projecte.emc.json.NSSOreDictionary;
 import moze_intel.projecte.emc.json.NormalizedSimpleStack;
 import moze_intel.projecte.emc.collector.IMappingCollector;
@@ -95,7 +96,8 @@ public class CustomConversionMapper implements IEMCMapper<NormalizedSimpleStack,
 	}
 
 	private static void addMappingsFromFile(Reader json, IMappingCollector<NormalizedSimpleStack, Integer> mapper) {
-		addMappingsFromFile(parseJson(json), mapper);
+		CustomConversionFile file = JsonHolder.GSON.fromJson(new BufferedReader(json), CustomConversionFile.class);
+		addMappingsFromFile(file, mapper);
 	}
 
 	private static void addMappingsFromFile(CustomConversionFile file, IMappingCollector<NormalizedSimpleStack, Integer> mapper) {
@@ -108,8 +110,8 @@ public class CustomConversionMapper implements IEMCMapper<NormalizedSimpleStack,
 			{
 				for (CustomConversion conversion : entry.getValue().conversions)
 				{
-					NormalizedSimpleStack output = getNSSfromJsonString(conversion.output, fakes);
-					mapper.addConversion(conversion.count, output, convertToNSSMap(conversion.ingredients, fakes));
+					NormalizedSimpleStack output = conversion.output;
+					mapper.addConversion(conversion.count, output, conversion.ingredients);
 				}
 			} catch (Exception e) {
 				PELogger.logFatal(String.format("ERROR reading custom conversion from group %s!", entry.getKey()));
@@ -122,9 +124,9 @@ public class CustomConversionMapper implements IEMCMapper<NormalizedSimpleStack,
 			if (file.values != null)
 			{
 				if (file.values.setValueBefore != null) {
-					for (Map.Entry<String, Integer> entry : file.values.setValueBefore.entrySet())
+					for (Map.Entry<NormalizedSimpleStack, Integer> entry : file.values.setValueBefore.entrySet())
 					{
-						NormalizedSimpleStack something = getNSSfromJsonString(entry.getKey(), fakes);
+						NormalizedSimpleStack something = entry.getKey();
 						mapper.setValueBefore(something, entry.getValue());
 						if (something instanceof NSSOreDictionary)
 						{
@@ -138,9 +140,9 @@ public class CustomConversionMapper implements IEMCMapper<NormalizedSimpleStack,
 				}
 				if (file.values.setValueAfter != null)
 				{
-					for (Map.Entry<String, Integer> entry : file.values.setValueAfter.entrySet())
+					for (Map.Entry<NormalizedSimpleStack, Integer> entry : file.values.setValueAfter.entrySet())
 					{
-						NormalizedSimpleStack something = getNSSfromJsonString(entry.getKey(), fakes);
+						NormalizedSimpleStack something = entry.getKey();
 						mapper.setValueAfter(something, entry.getValue());
 						if (something instanceof NSSOreDictionary)
 						{
@@ -156,16 +158,16 @@ public class CustomConversionMapper implements IEMCMapper<NormalizedSimpleStack,
 				{
 					for (CustomConversion conversion : file.values.conversion)
 					{
-						NormalizedSimpleStack out = getNSSfromJsonString(conversion.output, fakes);
+						NormalizedSimpleStack out = conversion.output;
 						if (conversion.evalOD && out instanceof NSSOreDictionary)
 						{
 							String odName = ((NSSOreDictionary) out).od;
 							for (ItemStack itemStack : OreDictionary.getOres(odName))
 							{
-								mapper.setValueFromConversion(conversion.count, NormalizedSimpleStack.getFor(itemStack), convertToNSSMap(conversion.ingredients, fakes));
+								mapper.setValueFromConversion(conversion.count, NormalizedSimpleStack.getFor(itemStack), conversion.ingredients);
 							}
 						}
-						mapper.setValueFromConversion(conversion.count, out, convertToNSSMap(conversion.ingredients, fakes));
+						mapper.setValueFromConversion(conversion.count, out, conversion.ingredients);
 					}
 				}
 			}
@@ -211,15 +213,6 @@ public class CustomConversionMapper implements IEMCMapper<NormalizedSimpleStack,
 		}
 		return out;
 	}
-
-	public static CustomConversionFile parseJson(Reader json) {
-		GsonBuilder builder = new GsonBuilder();
-		builder.registerTypeAdapter(CustomConversion.class, new CustomConversionDeserializer());
-		builder.registerTypeAdapter(FixedValues.class, new FixedValuesDeserializer());
-		Gson gson = builder.create();
-		return gson.fromJson(new BufferedReader(json), CustomConversionFile.class);
-	}
-
 
 	private static void tryToWriteDefaultFiles() {
 		for (String filename: defaultfilenames) {

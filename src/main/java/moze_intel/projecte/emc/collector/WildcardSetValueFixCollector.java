@@ -16,15 +16,15 @@ import java.util.Map;
  * These are then delayed until finishCollection() and will be expanded to all metadata that has been found.
  */
 public class WildcardSetValueFixCollector<V extends Comparable<V>, A extends IValueArithmetic> extends AbstractMappingCollector<NormalizedSimpleStack, V, A> {
-	IExtendedMappingCollector<NormalizedSimpleStack, V, A> inner;
+	private IExtendedMappingCollector<NormalizedSimpleStack, V, A> inner;
 	public WildcardSetValueFixCollector(IExtendedMappingCollector<NormalizedSimpleStack, V, A> inner) {
 		super(inner.getArithmetic());
 		this.inner = inner;
 	}
 
-	Map<NSSItem, V> setValueBeforeMap = Maps.newHashMap();
-	Map<NSSItem, V> setValueAfterMap = Maps.newHashMap();
-	List<CustomConversion> setValueConversionList = Lists.newArrayList();
+	private Map<NSSItem, V> setValueBeforeMap = Maps.newHashMap();
+	private Map<NSSItem, V> setValueAfterMap = Maps.newHashMap();
+	private List<CustomConversion> setValueConversionList = Lists.newArrayList();
 	private boolean isWildCard(NormalizedSimpleStack nss) {
 		return nss instanceof NSSItem && ((NSSItem) nss).damage == OreDictionary.WILDCARD_VALUE;
 	}
@@ -84,17 +84,10 @@ public class WildcardSetValueFixCollector<V extends Comparable<V>, A extends IVa
 			for (Integer meta: NormalizedSimpleStack.getUsedMetadata(conversion.output)) {
 				if (meta == OreDictionary.WILDCARD_VALUE) continue;
 				MappingCollector.debugFormat("Inserting Wildcard SetValueFromConversion %s:%d to %s", conversion.output, meta, conversion);
-				inner.setValueFromConversion(conversion.count, NormalizedSimpleStack.getFor(conversion.output, meta), ingredientMapFromStringMap(conversion.ingredients));
+				NSSItem item = ((NSSItem) conversion.output);
+				inner.setValueFromConversion(conversion.count, NormalizedSimpleStack.getFor(item.itemName, meta), conversion.ingredients);
 			}
 		}
 		inner.finishCollection();
-	}
-
-	private Map<NormalizedSimpleStack, Integer> ingredientMapFromStringMap(Map<String, Integer> map) {
-		Map<NormalizedSimpleStack, Integer> out = Maps.newHashMap();
-		for (Map.Entry<String, Integer> entry: map.entrySet()) {
-			out.put(NormalizedSimpleStack.fromSerializedItem(entry.getKey()), entry.getValue());
-		}
-		return out;
 	}
 }

@@ -10,7 +10,8 @@ public class NSSItem extends NormalizedSimpleStack {
 
     NSSItem(String itemName, int damage) {
         this.itemName = itemName;
-        if (Item.REGISTRY.getObject(new ResourceLocation(itemName)) == null) {
+        if (!Item.REGISTRY.getKeys().isEmpty() // No throw when running tests
+            && Item.REGISTRY.getObject(new ResourceLocation(itemName)) == null) {
             throw new IllegalArgumentException("Invalid Item with itemName = " + itemName);
         }
         this.damage = damage;
