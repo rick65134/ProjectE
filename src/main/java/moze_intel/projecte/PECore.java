@@ -7,11 +7,11 @@ import moze_intel.projecte.config.CustomEMCParser;
 import moze_intel.projecte.config.NBTWhitelistParser;
 import moze_intel.projecte.config.ProjectEConfig;
 import moze_intel.projecte.emc.EMCMapper;
-import moze_intel.projecte.events.ConnectionHandler;
 import moze_intel.projecte.events.PlayerEvents;
 import moze_intel.projecte.events.TickEvents;
 import moze_intel.projecte.gameObjs.ObjHandler;
-import moze_intel.projecte.handlers.PlayerChecks;
+import moze_intel.projecte.handlers.InternalTimers;
+import moze_intel.projecte.handlers.InternalAbilities;
 import moze_intel.projecte.impl.AlchBagImpl;
 import moze_intel.projecte.impl.IMCHandler;
 import moze_intel.projecte.impl.KnowledgeImpl;
@@ -25,6 +25,7 @@ import moze_intel.projecte.impl.TransmutationOffline;
 import moze_intel.projecte.proxies.IProxy;
 import moze_intel.projecte.utils.AchievementHandler;
 import moze_intel.projecte.utils.Constants;
+import moze_intel.projecte.utils.DummyIStorage;
 import moze_intel.projecte.utils.GuiHandler;
 import moze_intel.projecte.utils.PELogger;
 import moze_intel.projecte.utils.SoundHandler;
@@ -33,6 +34,7 @@ import net.minecraft.item.Item;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -89,12 +91,13 @@ public class PECore
 
 		AlchBagImpl.init();
 		KnowledgeImpl.init();
+		CapabilityManager.INSTANCE.register(InternalTimers.class, new DummyIStorage<>(), InternalTimers::new);
+		CapabilityManager.INSTANCE.register(InternalAbilities.class, new DummyIStorage<>(), () -> new InternalAbilities(null));
 		
 		NetworkRegistry.INSTANCE.registerGuiHandler(PECore.instance, new GuiHandler());
 
 		MinecraftForge.EVENT_BUS.register(new PlayerEvents());
 		MinecraftForge.EVENT_BUS.register(new TickEvents());
-		MinecraftForge.EVENT_BUS.register(new ConnectionHandler());
 
 		SoundHandler.init();
 		ObjHandler.register();
@@ -168,9 +171,6 @@ public class PECore
 	{
 		Transmutation.clearCache();
 		PELogger.logDebug("Cleared cached tome knowledge");
-
-		PlayerChecks.clearLists();
-		PELogger.logDebug("Cleared player check-lists: server stopping.");
 
 		EMCMapper.clearMaps();
 		PELogger.logInfo("Completed server-stop actions.");

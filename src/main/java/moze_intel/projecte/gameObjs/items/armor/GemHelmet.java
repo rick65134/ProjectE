@@ -1,7 +1,7 @@
 package moze_intel.projecte.gameObjs.items.armor;
 
 import moze_intel.projecte.config.ProjectEConfig;
-import moze_intel.projecte.handlers.PlayerTimers;
+import moze_intel.projecte.handlers.InternalTimers;
 import moze_intel.projecte.utils.ChatHelper;
 import moze_intel.projecte.utils.ClientKeyHelper;
 import moze_intel.projecte.utils.PEKeybind;
@@ -108,9 +108,9 @@ public class GemHelmet extends GemArmorBase implements IGoggles, IRevealer
         }
         else
         {
-            PlayerTimers.activateHeal((player));
+            player.getCapability(InternalTimers.CAPABILITY, null).activateHeal();
 
-            if (player.getHealth() < player.getMaxHealth() && PlayerTimers.canHeal((player)))
+            if (player.getHealth() < player.getMaxHealth() && player.getCapability(InternalTimers.CAPABILITY, null).canHeal())
             {
                 player.heal(2.0F);
             }

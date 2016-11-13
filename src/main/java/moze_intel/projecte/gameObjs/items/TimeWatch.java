@@ -88,10 +88,7 @@ public class TimeWatch extends ItemCharge implements IModeChanger, IBauble, IPed
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int invSlot, boolean isHeld) 
 	{
-		if (!stack.hasTagCompound())
-		{
-			stack.setTagCompound(new NBTTagCompound());
-		}
+		super.onUpdate(stack, world, entity, invSlot, isHeld);
 		
 		if (!(entity instanceof EntityPlayer) || invSlot > 8)
 		{
@@ -220,17 +217,15 @@ public class TimeWatch extends ItemCharge implements IModeChanger, IBauble, IPed
 
 		for (BlockPos pos : WorldHelper.getPositionsFromBox(bBox))
 		{
-			IBlockState state = world.getBlockState(pos);
-			Block block = state.getBlock();
-
-			if (block.getTickRandomly()
-					&& !(block instanceof BlockLiquid) // Don't speed vanilla non-source blocks - dupe issues
-					&& !(block instanceof BlockFluidBase) // Don't speed Forge fluids - just in case of dupes as well
-					&& !(block instanceof IGrowable)
-					&& !(block instanceof IPlantable) // All plants should be sped using Harvest Goddess
-					)
+			for (int i = 0; i < bonusTicks; i++)
 			{
-				for (int i = 0; i < bonusTicks; i++)
+				IBlockState state = world.getBlockState(pos);
+				Block block = state.getBlock();
+				if (block.getTickRandomly()
+						&& !(block instanceof BlockLiquid) // Don't speed vanilla non-source blocks - dupe issues
+						&& !(block instanceof BlockFluidBase) // Don't speed Forge fluids - just in case of dupes as well
+						&& !(block instanceof IGrowable)
+						&& !(block instanceof IPlantable)) // All plants should be sped using Harvest Goddess
 				{
 					block.updateTick(world, pos, state, itemRand);
 				}
