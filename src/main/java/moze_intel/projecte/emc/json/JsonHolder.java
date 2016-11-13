@@ -16,6 +16,7 @@ public final class JsonHolder {
             .registerTypeAdapter(CustomConversion.class, new CustomConversionDeserializer())
 		    .registerTypeAdapter(FixedValues.class, new FixedValuesDeserializer())
             .setPrettyPrinting()
+            .disableHtmlEscaping()
             .enableComplexMapKeySerialization()
             .create();
 

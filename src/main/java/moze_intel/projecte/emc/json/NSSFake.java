@@ -2,14 +2,14 @@ package moze_intel.projecte.emc.json;
 
 class NSSFake extends NormalizedSimpleStack {
 
-    public final String description;
+    public final String name;
     public final int counter;
     private static int fakeItemCounter = 0;
 
-    NSSFake(String description)
+    NSSFake(String name)
     {
         this.counter = fakeItemCounter++;
-        this.description = description;
+        this.name = name;
     }
 
     @Override
@@ -21,11 +21,11 @@ class NSSFake extends NormalizedSimpleStack {
     @Override
     public String json()
     {
-        return "FAKE|" + this.counter + " " + this.description;
+        return "FAKE|" + this.counter + " " + this.name;
     }
 
     @Override
     public String toString() {
-        return "NSSFAKE" + counter + ": " + description;
+        return "NSSFAKE" + counter + ": " + name;
     }
 }
